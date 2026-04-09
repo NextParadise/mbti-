@@ -338,37 +338,57 @@
         }, 150);
     }
 
-    function showResult() {
-        try {
-            // 1. 隐藏答题区和进度条
-            document.getElementById('quizScreen').classList.remove('active');
-            document.getElementById('progressContainer').style.display = 'none';
-            
-            // 2. 【关键修复】先让结果容器显示出来，防止隐藏状态下赋值报错
-            document.getElementById('resultScreen').classList.add('active');
+function showResult() {
+    try {
+        document.getElementById('quizScreen').classList.remove('active');
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('resultScreen').classList.add('active');
 
-            // 3. 计算最终人格
-            let finalType = "";
-            finalType += scores['E'] >= scores['I'] ? "E" : "I";
-            finalType += scores['S'] >= scores['N'] ? "S" : "N";
-            finalType += scores['T'] >= scores['F'] ? "T" : "F";
-            finalType += scores['J'] >= scores['P'] ? "J" : "P";
+        // 1. 算出标准的 MBTI 字母
+        let mbti = "";
+        mbti += scores['E'] >= scores['I'] ? "E" : "I";
+        mbti += scores['S'] >= scores['N'] ? "S" : "N";
+        mbti += scores['T'] >= scores['F'] ? "T" : "F";
+        mbti += scores['J'] >= scores['P'] ? "J" : "P";
 
-            // 4. 获取解析数据（增加容错 fallback）
-            const resultData = typeDescriptions[finalType] || { title: "未知", desc: "计算出现偏差，请重试" };
+        // 2. 【关键新增】建立 MBTI 到朋友名字的“强行绑定”映射表
+        const mbtiToFriendMap = {
+            "INTJ": "谭晟",
+            "INTP": "沙宇鑫",
+            "ENTJ": "余敏杰",
+            "ENTP": "米饭轩",
+            "INFJ": "范子轩",
+            "INFP": "肖",
+            "ENFJ": "周旻瑄",
+            "ENFP": "廖少",
+            "ISTJ": "玉米鸡",
+            "ISFJ": "李智",
+            "ESTJ": "邓惟斯",
+            "ESFJ": "范子轩（长大版）",
+            "ISTP": "刘柏志",
+            "ISFP": "宋函颖",
+            "ESTP": "周澜徽",
+            "ESFP": "廖少" // 凑齐16个，廖少占两个名额
+        };
 
-            // 5. 使用更稳定的 innerHTML 渲染数据
-            document.getElementById('resultType').innerHTML = finalType;
-            document.getElementById('resultTitle').innerHTML = resultData.title;
-            document.getElementById('resultDesc').innerHTML = resultData.desc;
-            
-        } catch (error) {
-            // 即使发生极端错误，也能保证用户看到提示而不是白屏
-            console.error("渲染结果时出错:", error);
-            document.getElementById('resultScreen').classList.add('active');
-            document.getElementById('resultDesc').innerHTML = "网络或浏览器状态异常，请点击下方按钮重新测试。";
-        }
+        // 3. 把算出来的 MBTI 转换成朋友的名字
+        let finalType = mbtiToFriendMap[mbti];
+
+        // 4. 去词典里拿对应的搞笑文案
+        const resultData = typeDescriptions[finalType] || { title: "未知", desc: "计算出现偏差，请重试" };
+
+        // 5. 渲染到页面上
+        document.getElementById('resultType').innerHTML = finalType;
+        document.getElementById('resultTitle').innerHTML = resultData.title;
+        document.getElementById('resultDesc').innerHTML = resultData.desc;
+        
+    } catch (error) {
+        console.error("渲染结果时出错:", error);
+        document.getElementById('resultScreen').classList.add('active');
+        document.getElementById('resultDesc').innerHTML = "网络或浏览器状态异常，请点击下方按钮重新测试。";
     }
+}
+
 </script>
 
 </body>
